@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend-pa8a.onrender.com/api';
 
 export async function apiFetch(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
