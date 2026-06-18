@@ -433,7 +433,7 @@ export default function Home() {
                     <div 
                       key={work.title}
                       onClick={() => handleCardClick(idx)}
-                      className={`group relative w-[240px] h-[360px] md:w-[320px] md:h-[480px] shrink-0 transition-all duration-1000 ease-out cursor-pointer snap-center ${!isVisible ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                      className={`group relative w-[240px] h-[360px] md:w-[320px] md:h-[480px] shrink-0 transition-all duration-1000 ease-out cursor-pointer snap-center ${!isVisible ? 'opacity-0 pointer-events-none hidden' : 'opacity-100'}`}
                       style={!isMobile ? { 
                         transform: `perspective(1200px) rotateY(${rotateY}deg) translateZ(${translateZ}px) translateX(${translateX}px) translateY(${translateY}px)`,
                         zIndex: 10 - Math.abs(offset)
