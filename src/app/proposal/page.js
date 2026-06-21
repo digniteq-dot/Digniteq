@@ -109,8 +109,8 @@ export default function ProposalPage() {
     e.preventDefault();
     setFormError("");
 
-    if (!formData.clientName || !formData.businessName || !formData.email) {
-      setFormError("Please fill out all required fields (Name, Business Name, and Email).");
+    if (!formData.clientName || !formData.businessName || !formData.email || !formData.phone) {
+      setFormError("Please fill out all required fields (Name, Business Name, Email, and Phone).");
       return;
     }
 
@@ -162,20 +162,21 @@ export default function ProposalPage() {
   // Render Generated Proposal Sheet
   if (submittedProposal) {
     return (
-      <div className="min-h-screen bg-white pt-28 pb-24 px-4 md:px-12 font-inter text-black print:p-0 print:m-0">
-        <div className="max-w-4xl mx-auto print:max-w-none print:w-full">
+      <div className="min-h-screen bg-[#f8fafc] py-12 px-4 md:px-12 font-inter text-slate-800 print:bg-white print:p-0 print:py-0">
+        <div className="max-w-4xl mx-auto">
           
           {/* Header Controls (Hidden on Print) */}
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-12 pb-6 border-b border-slate-100 gap-4 print:hidden">
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-8 pb-6 border-b border-slate-200 gap-4 print:hidden">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">Generated Proposal</h1>
-              <p className="text-slate-500 text-sm mt-1">Ready for review and printing.</p>
+              <h1 className="text-2xl font-black tracking-tight text-slate-900 uppercase">Proposal Generated</h1>
+              <p className="text-slate-500 text-sm mt-1">Review the details below. Ready for client presentation.</p>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <button 
                 onClick={handlePrint}
-                className="bg-black hover:bg-slate-800 text-white font-sans text-sm font-semibold px-6 py-2.5 transition-colors"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2"
               >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                 Print / Save PDF
               </button>
               <button 
@@ -190,103 +191,163 @@ export default function ProposalPage() {
                     description: "",
                   });
                 }}
-                className="border border-slate-300 hover:bg-slate-50 text-slate-700 font-sans text-sm font-semibold px-6 py-2.5 transition-colors"
+                className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm px-6 py-2.5 rounded-lg shadow-sm transition-colors"
               >
                 Create New
               </button>
             </div>
           </div>
 
-          {/* Professional Proposal Layout */}
-          <div id="proposal-document" className="bg-white px-4 md:px-12 py-8 print:p-0">
+          {/* Professional Proposal Layout (The Document) */}
+          <div id="proposal-document" className="bg-white shadow-2xl print:shadow-none rounded-xl print:rounded-none overflow-hidden border border-slate-200 print:border-none">
             
-            {/* Letterhead Header */}
-            <div className="flex justify-between items-start border-b-2 border-black pb-8 mb-10">
-              <div>
-                <h2 className="text-2xl font-black tracking-tight text-black uppercase mb-1">Digniteq</h2>
-                <p className="text-slate-600 text-sm">Digital Agency</p>
-                <p className="text-slate-500 text-xs mt-1">digniteq.com | contact@digniteq.com</p>
-              </div>
-              <div className="text-right">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">Proposal Document</span>
-                <p className="text-black text-sm font-semibold">Ref: PRO-{submittedProposal._id?.slice(-6).toUpperCase()}</p>
-                <p className="text-slate-500 text-xs mt-1">Date: {new Date(submittedProposal.createdAt).toLocaleDateString()}</p>
-              </div>
-            </div>
+            {/* Top Brand Banner */}
+            <div className="h-4 bg-blue-600 w-full print:bg-blue-600 print:block" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}></div>
 
-            {/* Client info & Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
-              <div>
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-3 border-b border-slate-200 pb-2">Prepared For</span>
-                <h3 className="text-xl font-bold text-black mb-1">{submittedProposal.clientName}</h3>
-                <p className="text-slate-700 font-medium mb-1">{submittedProposal.businessName}</p>
-                <p className="text-slate-500 text-sm">{submittedProposal.email}</p>
-                {submittedProposal.phone && <p className="text-slate-500 text-sm">{submittedProposal.phone}</p>}
+            <div className="p-10 md:p-14">
+              {/* Letterhead Header */}
+              <div className="flex flex-col md:flex-row justify-between items-start border-b-2 border-slate-100 pb-10 mb-10 gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg print:shadow-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                    D
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black tracking-tight text-slate-900 uppercase">Digniteq</h2>
+                    <p className="text-blue-600 font-bold text-sm uppercase tracking-widest mt-0.5">Premium Digital Agency</p>
+                    <p className="text-slate-500 text-xs mt-1 font-medium">digniteq.in &nbsp;&bull;&nbsp; contact@digniteq.in</p>
+                  </div>
+                </div>
+                <div className="text-left md:text-right bg-slate-50 p-4 rounded-xl border border-slate-100 print:bg-transparent print:border-none print:p-0">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Document Type</span>
+                  <p className="text-slate-900 font-black text-lg uppercase tracking-tight mb-2">Service Proposal</p>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm md:text-right">
+                    <span className="text-slate-500">Ref No:</span>
+                    <span className="text-slate-900 font-bold">#PRO-{submittedProposal._id?.slice(-6).toUpperCase()}</span>
+                    <span className="text-slate-500">Date:</span>
+                    <span className="text-slate-900 font-bold">{new Date(submittedProposal.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-3 border-b border-slate-200 pb-2">Project Outline</span>
-                <p className="text-slate-700 text-sm leading-relaxed">
-                  {submittedProposal.description || "Custom business growth and optimization strategy designed for digital enhancement and lead generation."}
-                </p>
-              </div>
-            </div>
 
-            {/* Project Scope & Pricing Table */}
-            <div className="mb-12 print:break-inside-auto">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-4 border-b border-slate-200 pb-2">Scope of Services</span>
-              
-              <div className="space-y-6">
-                {submittedProposal.selectedServices.map((service, index) => (
-                  <div key={index} className={`border border-slate-100 rounded-xl p-8 bg-white print:border-slate-300 print:shadow-none ${index === 1 ? 'print:break-before-page' : ''}`}>
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <h4 className="text-base font-bold text-black">{service.serviceType}</h4>
-                        <span className="text-sm text-slate-600 font-medium">{service.planName}</span>
-                      </div>
-                      <span className="text-lg font-bold text-black">{service.price}</span>
-                    </div>
-                    {service.features && service.features.length > 0 && (
-                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-100 list-disc list-inside">
-                        {service.features.map((feat, fIdx) => (
-                          <li key={fIdx} className="text-slate-600 text-sm">
-                            {feat}
-                          </li>
-                        ))}
-                      </ul>
+              {/* Client info & Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12 bg-slate-50 p-8 rounded-2xl border border-slate-100 print:bg-transparent print:border-none print:p-0">
+                <div>
+                  <span className="flex items-center gap-2 text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    Prepared For
+                  </span>
+                  <h3 className="text-2xl font-black text-slate-900 mb-1">{submittedProposal.clientName}</h3>
+                  <p className="text-slate-600 font-bold text-sm uppercase tracking-wider mb-3">{submittedProposal.businessName}</p>
+                  <div className="space-y-1">
+                    <p className="text-slate-500 text-sm flex items-center gap-2">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                      {submittedProposal.email}
+                    </p>
+                    {submittedProposal.phone && (
+                      <p className="text-slate-500 text-sm flex items-center gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        {submittedProposal.phone}
+                      </p>
                     )}
                   </div>
-                ))}
+                </div>
+                <div>
+                  <span className="flex items-center gap-2 text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Project Outline
+                  </span>
+                  <p className="text-slate-600 text-sm leading-relaxed bg-white p-4 rounded-xl border border-slate-200 print:border-none print:p-0 print:bg-transparent shadow-sm print:shadow-none">
+                    {submittedProposal.description || "Custom business growth and optimization strategy designed for digital enhancement and lead generation targeting specific market goals."}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            {/* Totals & Next steps */}
-            <div className="border-t-2 border-black pt-8 flex flex-col md:flex-row justify-between items-start gap-8 print:break-inside-avoid">
-              <div className="max-w-md">
-                <h4 className="text-black font-bold mb-2">Next Steps & Terms</h4>
-                <p className="text-slate-600 text-sm leading-relaxed">
-                  This proposal is valid for 14 days from the date of issue. To proceed, please authorize below. Our team will contact you within 24 hours to commence the onboarding process.
-                </p>
+              {/* Project Scope & Pricing Table */}
+              <div className="mb-14 print:break-inside-auto">
+                <h3 className="text-xl font-black text-slate-900 mb-6 border-b-2 border-slate-900 pb-3 uppercase tracking-tight">Scope of Work</h3>
+                
+                <div className="space-y-6">
+                  {submittedProposal.selectedServices.map((service, index) => (
+                    <div key={index} className={`border border-slate-200 rounded-2xl p-6 bg-white hover:border-blue-300 transition-colors print:border-slate-300 print:shadow-none ${index === 1 ? 'print:break-before-page print:mt-12' : ''}`}>
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold print:border print:border-blue-200" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            {index + 1}
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-black text-slate-900 uppercase tracking-tight">{service.serviceType}</h4>
+                            <span className="text-xs font-bold text-blue-600 uppercase tracking-widest px-2 py-1 bg-blue-50 rounded-md print:border print:border-blue-100" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{service.planName}</span>
+                          </div>
+                        </div>
+                        <span className="text-2xl font-black text-slate-900">{service.price}</span>
+                      </div>
+                      
+                      {service.features && service.features.length > 0 && (
+                        <div className="mt-5 pt-5 border-t border-slate-100 pl-14 print:pl-0">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">Included Deliverables</span>
+                          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+                            {service.features.map((feat, fIdx) => (
+                              <li key={fIdx} className="text-slate-600 text-sm flex items-start gap-2">
+                                <svg className="text-blue-500 mt-0.5 flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>{feat}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="bg-slate-50 border border-slate-200 px-8 py-6 text-right min-w-[280px]">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Total Investment</span>
-                <span className="text-3xl font-black text-black">{submittedProposal.totalPrice}</span>
-              </div>
-            </div>
 
-            {/* Signature Block */}
-            <div className="mt-20 pt-8 border-t border-slate-200 grid grid-cols-2 gap-12 print:break-inside-avoid print:mt-12">
-              <div>
-                <div className="h-16 border-b border-black mb-2"></div>
-                <p className="text-slate-800 text-sm font-bold">Digniteq Representative</p>
-                <p className="text-slate-500 text-xs mt-1">Authorized Signature</p>
-              </div>
-              <div>
-                <div className="h-16 border-b border-black mb-2"></div>
-                <p className="text-slate-800 text-sm font-bold">{submittedProposal.clientName}</p>
-                <p className="text-slate-500 text-xs mt-1">Client Authorization</p>
-              </div>
-            </div>
+              {/* Totals & Next steps */}
+              <div className="flex flex-col md:flex-row justify-between items-stretch gap-8 print:break-inside-avoid">
+                <div className="flex-1 bg-slate-50 p-6 rounded-2xl border border-slate-100 print:bg-transparent print:border-none print:p-0">
+                  <h4 className="text-slate-900 font-black uppercase tracking-tight mb-3">Terms & Next Steps</h4>
+                  <ul className="text-slate-600 text-sm space-y-2">
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600 font-bold">•</span>
+                      This proposal is valid for 14 days from the date of issue.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600 font-bold">•</span>
+                      To proceed, please authorize the document below.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600 font-bold">•</span>
+                      Our project manager will contact you within 24 hours of approval.
+                    </li>
+                  </ul>
+                </div>
 
+                <div className="bg-blue-600 text-white rounded-2xl p-8 flex flex-col justify-center min-w-[300px] shadow-lg print:border-2 print:border-black print:text-black print:shadow-none print:bg-transparent" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                  <span className="text-xs font-bold text-blue-200 print:text-slate-500 uppercase tracking-widest block mb-2">Total Estimated Investment</span>
+                  <span className="text-4xl font-black">{submittedProposal.totalPrice}</span>
+                  <span className="text-xs text-blue-200 print:text-slate-500 mt-2 block">* Taxes may apply as per local regulations</span>
+                </div>
+              </div>
+
+              {/* Signature Block */}
+              <div className="mt-16 pt-10 border-t-2 border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-16 print:break-inside-avoid print:mt-12">
+                <div>
+                  <div className="h-12 border-b border-slate-300 mb-3 relative">
+                    {/* Fake signature for aesthetic */}
+                    <span className="absolute bottom-1 left-2 font-['Brush_Script_MT',cursive] text-2xl text-slate-800/60 -rotate-3">Digniteq Team</span>
+                  </div>
+                  <p className="text-slate-900 text-sm font-black uppercase tracking-tight">Digniteq Representative</p>
+                  <p className="text-slate-500 text-xs mt-0.5 font-medium">Authorized Signature</p>
+                </div>
+                <div>
+                  <div className="h-12 border-b border-slate-300 mb-3 relative"></div>
+                  <p className="text-slate-900 text-sm font-black uppercase tracking-tight">{submittedProposal.clientName}</p>
+                  <p className="text-slate-500 text-xs mt-0.5 font-medium">Client Authorization</p>
+                </div>
+              </div>
+
+            </div>
+            
+            {/* Bottom Brand Banner */}
+            <div className="h-2 bg-slate-900 w-full print:bg-slate-900 print:block" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}></div>
           </div>
         </div>
       </div>
@@ -358,12 +419,13 @@ export default function ProposalPage() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Phone Number (Optional)</label>
+                <label className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Phone Number *</label>
                 <input 
                   type="text" 
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
+                  required
                   placeholder="e.g. +91 99999 99999"
                   className="bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 transition-colors"
                 />
