@@ -1,7 +1,10 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend-pa8a.onrender.com/api';
+const API_BASE_URL = process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:5000/api' 
+  : (process.env.NEXT_PUBLIC_API_URL || 'https://backend-pa8a.onrender.com/api');
 
 export async function apiFetch(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
+  console.log("apiFetch URL Target:", url);
   
   const headers = {
     'Content-Type': 'application/json',

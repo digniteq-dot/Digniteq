@@ -34,11 +34,15 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${inter.variable} ${outfit.variable} ${bodoni.variable}`} suppressHydrationWarning>
       <body className="antialiased bg-[#030610] text-white overflow-x-hidden" suppressHydrationWarning>
         <ClientOnly><GlobalBackground /><CustomCursor /></ClientOnly>
-        <Navbar />
+        <div className="print:hidden">
+          <Navbar />
+        </div>
 
         <SmoothScroll>
           <main className="relative z-10">{children}</main>
-          <Footer />
+          <div className="print:hidden">
+            <Footer />
+          </div>
         </SmoothScroll>
       </body>
     </html>
