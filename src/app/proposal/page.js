@@ -20,6 +20,8 @@ export default function ProposalPage() {
 
   // Status after submission
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [previewData, setPreviewData] = useState(null);
   const [submittedProposal, setSubmittedProposal] = useState(null);
   const [formError, setFormError] = useState("");
 
@@ -105,7 +107,7 @@ export default function ProposalPage() {
     return total;
   };
 
-  const handleSubmit = async (e) => {
+  const handlePreview = (e) => {
     e.preventDefault();
     setFormError("");
 
@@ -126,17 +128,29 @@ export default function ProposalPage() {
       return;
     }
 
+    setPreviewData({
+      ...formData,
+      selectedServices: selectedList,
+      totalPrice: `₹${calculateTotal().toLocaleString("en-IN")}`,
+      _id: "PREVIEW",
+      createdAt: new Date().toISOString()
+    });
+    setPreviewMode(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleFinalSubmit = async () => {
     setIsSubmitting(true);
 
     try {
       const payload = {
-        clientName: formData.clientName,
-        businessName: formData.businessName,
-        email: formData.email,
-        phone: formData.phone,
-        description: formData.description,
-        selectedServices: selectedList,
-        totalPrice: `₹${calculateTotal().toLocaleString("en-IN")}`,
+        clientName: previewData.clientName,
+        businessName: previewData.businessName,
+        email: previewData.email,
+        phone: previewData.phone,
+        description: previewData.description,
+        selectedServices: previewData.selectedServices,
+        totalPrice: previewData.totalPrice,
         status: "new"
       };
 
@@ -146,10 +160,11 @@ export default function ProposalPage() {
       });
 
       setSubmittedProposal(res);
+      setPreviewMode(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       console.error("Submission error:", err);
-      setFormError("An error occurred while generating your proposal. Please try again.");
+      alert("An error occurred while saving your proposal. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -159,198 +174,445 @@ export default function ProposalPage() {
     window.print();
   };
 
-  // Render Generated Proposal Sheet
-  if (submittedProposal) {
+  // Render Generated Proposal Sheet (Preview or Final)
+  const displayProposal = submittedProposal || (previewMode ? previewData : null);
+
+  if (displayProposal) {
+    const isFinal = !!submittedProposal;
     return (
+      <>
+      <style>{`
+        @media print {
+          @page {
+            size: A4;
+            margin: 0; /* Removes default browser headers/footers */
+          }
+          body {
+            background-color: white !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      `}</style>
       <div className="min-h-screen bg-[#f8fafc] py-12 px-4 md:px-12 font-inter text-slate-800 print:bg-white print:p-0 print:py-0">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-[794px] mx-auto">
           
           {/* Header Controls (Hidden on Print) */}
           <div className="flex flex-col sm:flex-row justify-between items-center mb-8 pb-6 border-b border-slate-200 gap-4 print:hidden">
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-slate-900 uppercase">Proposal Generated</h1>
-              <p className="text-slate-500 text-sm mt-1">Review the details below. Ready for client presentation.</p>
+              <h1 className="text-2xl font-black tracking-tight text-slate-900 uppercase">
+                {isFinal ? "Proposal Generated" : "Proposal Preview"}
+              </h1>
+              <p className="text-slate-500 text-sm mt-1">
+                {isFinal ? "Review the details below. Ready for client presentation." : "Review your proposal before finalizing."}
+              </p>
             </div>
             <div className="flex gap-3">
-              <button 
-                onClick={handlePrint}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-                Print / Save PDF
-              </button>
-              <button 
-                onClick={() => {
-                  setSubmittedProposal(null);
-                  setSelectedPlans({});
-                  setFormData({
-                    clientName: "",
-                    businessName: "",
-                    email: "",
-                    phone: "",
-                    description: "",
-                  });
-                }}
-                className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm px-6 py-2.5 rounded-lg shadow-sm transition-colors"
-              >
-                Create New
-              </button>
+              {!isFinal ? (
+                <>
+                  <button 
+                    onClick={() => setPreviewMode(false)}
+                    className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm px-6 py-2.5 rounded-lg shadow-sm transition-colors"
+                  >
+                    Edit Details
+                  </button>
+                  <button 
+                    onClick={handleFinalSubmit}
+                    disabled={isSubmitting}
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold text-sm px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all"
+                  >
+                    {isSubmitting ? "Saving..." : "Save Final Proposal"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={handlePrint}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    Print / Save PDF
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setSubmittedProposal(null);
+                      setPreviewMode(false);
+                      setSelectedPlans({});
+                      setFormData({
+                        clientName: "",
+                        businessName: "",
+                        email: "",
+                        phone: "",
+                        description: "",
+                      });
+                    }}
+                    className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm px-6 py-2.5 rounded-lg shadow-sm transition-colors"
+                  >
+                    Create New
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
           {/* Professional Proposal Layout (The Document) */}
-          <div id="proposal-document" className="bg-white shadow-2xl print:shadow-none rounded-xl print:rounded-none overflow-hidden border border-slate-200 print:border-none">
+          <div id="proposal-document" className="flex flex-col gap-10 print:gap-0">
             
-            {/* Top Brand Banner */}
-            <div className="h-4 bg-blue-600 w-full print:bg-blue-600 print:block" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}></div>
+            {/* PAGE 1: Intro & Overview */}
+            <div className="bg-white shadow-xl print:shadow-none border border-slate-200 print:border-none relative overflow-hidden print:break-after-page min-h-[1123px] flex flex-col">
+              <div className="h-4 bg-blue-600 w-full print:bg-blue-600 print:block shrink-0" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}></div>
 
-            <div className="p-10 md:p-14">
-              {/* Letterhead Header */}
-              <div className="flex flex-col md:flex-row justify-between items-start border-b-2 border-slate-100 pb-10 mb-10 gap-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg print:shadow-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                    D
+              <div className="p-10 md:p-14 print:p-12 flex-1">
+                {/* Letterhead Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start border-b-2 border-slate-100 pb-10 mb-10 gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg print:shadow-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      D
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-black tracking-tight text-slate-900 uppercase">Digniteq</h2>
+                      <p className="text-blue-600 font-bold text-sm uppercase tracking-widest mt-0.5">Premium Digital Agency</p>
+                      <p className="text-slate-500 text-xs mt-1 font-medium">digniteq.in &nbsp;&bull;&nbsp; contact@digniteq.in</p>
+                    </div>
                   </div>
+                  <div className="text-left md:text-right bg-slate-50 p-4 rounded-xl border border-slate-100 print:bg-transparent print:border-none print:p-0">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Document Type</span>
+                    <p className="text-slate-900 font-black text-lg uppercase tracking-tight mb-2">Service Proposal</p>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm md:text-right">
+                      <span className="text-slate-500">Ref No:</span>
+                      <span className="text-slate-900 font-bold">#PRO-{displayProposal._id?.slice(-6).toUpperCase()}</span>
+                      <span className="text-slate-500">Date:</span>
+                      <span className="text-slate-900 font-bold">{new Date(submittedProposal.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Client info & Summary */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12 bg-slate-50 p-8 rounded-2xl border border-slate-100 print:bg-transparent print:border-none print:p-0">
                   <div>
-                    <h2 className="text-3xl font-black tracking-tight text-slate-900 uppercase">Digniteq</h2>
-                    <p className="text-blue-600 font-bold text-sm uppercase tracking-widest mt-0.5">Premium Digital Agency</p>
-                    <p className="text-slate-500 text-xs mt-1 font-medium">digniteq.in &nbsp;&bull;&nbsp; contact@digniteq.in</p>
-                  </div>
-                </div>
-                <div className="text-left md:text-right bg-slate-50 p-4 rounded-xl border border-slate-100 print:bg-transparent print:border-none print:p-0">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Document Type</span>
-                  <p className="text-slate-900 font-black text-lg uppercase tracking-tight mb-2">Service Proposal</p>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm md:text-right">
-                    <span className="text-slate-500">Ref No:</span>
-                    <span className="text-slate-900 font-bold">#PRO-{submittedProposal._id?.slice(-6).toUpperCase()}</span>
-                    <span className="text-slate-500">Date:</span>
-                    <span className="text-slate-900 font-bold">{new Date(submittedProposal.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Client info & Summary */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12 bg-slate-50 p-8 rounded-2xl border border-slate-100 print:bg-transparent print:border-none print:p-0">
-                <div>
-                  <span className="flex items-center gap-2 text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    Prepared For
-                  </span>
-                  <h3 className="text-2xl font-black text-slate-900 mb-1">{submittedProposal.clientName}</h3>
-                  <p className="text-slate-600 font-bold text-sm uppercase tracking-wider mb-3">{submittedProposal.businessName}</p>
-                  <div className="space-y-1">
-                    <p className="text-slate-500 text-sm flex items-center gap-2">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                      {submittedProposal.email}
-                    </p>
-                    {submittedProposal.phone && (
+                    <span className="flex items-center gap-2 text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                      Prepared For
+                    </span>
+                    <h3 className="text-2xl font-black text-slate-900 mb-1">{displayProposal.clientName}</h3>
+                    <p className="text-slate-600 font-bold text-sm uppercase tracking-wider mb-3">{displayProposal.businessName}</p>
+                    <div className="space-y-1">
                       <p className="text-slate-500 text-sm flex items-center gap-2">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                        {submittedProposal.phone}
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        {displayProposal.email}
                       </p>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <span className="flex items-center gap-2 text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    Project Outline
-                  </span>
-                  <p className="text-slate-600 text-sm leading-relaxed bg-white p-4 rounded-xl border border-slate-200 print:border-none print:p-0 print:bg-transparent shadow-sm print:shadow-none">
-                    {submittedProposal.description || "Custom business growth and optimization strategy designed for digital enhancement and lead generation targeting specific market goals."}
-                  </p>
-                </div>
-              </div>
-
-              {/* Project Scope & Pricing Table */}
-              <div className="mb-14 print:break-inside-auto">
-                <h3 className="text-xl font-black text-slate-900 mb-6 border-b-2 border-slate-900 pb-3 uppercase tracking-tight">Scope of Work</h3>
-                
-                <div className="space-y-6">
-                  {submittedProposal.selectedServices.map((service, index) => (
-                    <div key={index} className={`border border-slate-200 rounded-2xl p-6 bg-white hover:border-blue-300 transition-colors print:border-slate-300 print:shadow-none ${index === 1 ? 'print:break-before-page print:mt-12' : ''}`}>
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold print:border print:border-blue-200" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                            {index + 1}
-                          </div>
-                          <div>
-                            <h4 className="text-lg font-black text-slate-900 uppercase tracking-tight">{service.serviceType}</h4>
-                            <span className="text-xs font-bold text-blue-600 uppercase tracking-widest px-2 py-1 bg-blue-50 rounded-md print:border print:border-blue-100" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>{service.planName}</span>
-                          </div>
-                        </div>
-                        <span className="text-2xl font-black text-slate-900">{service.price}</span>
-                      </div>
-                      
-                      {service.features && service.features.length > 0 && (
-                        <div className="mt-5 pt-5 border-t border-slate-100 pl-14 print:pl-0">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">Included Deliverables</span>
-                          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
-                            {service.features.map((feat, fIdx) => (
-                              <li key={fIdx} className="text-slate-600 text-sm flex items-start gap-2">
-                                <svg className="text-blue-500 mt-0.5 flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                <span>{feat}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                      {displayProposal.phone && (
+                        <p className="text-slate-500 text-sm flex items-center gap-2">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                          {displayProposal.phone}
+                        </p>
                       )}
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Totals & Next steps */}
-              <div className="flex flex-col md:flex-row justify-between items-stretch gap-8 print:break-inside-avoid">
-                <div className="flex-1 bg-slate-50 p-6 rounded-2xl border border-slate-100 print:bg-transparent print:border-none print:p-0">
-                  <h4 className="text-slate-900 font-black uppercase tracking-tight mb-3">Terms & Next Steps</h4>
-                  <ul className="text-slate-600 text-sm space-y-2">
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-600 font-bold">•</span>
-                      This proposal is valid for 14 days from the date of issue.
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-600 font-bold">•</span>
-                      To proceed, please authorize the document below.
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-600 font-bold">•</span>
-                      Our project manager will contact you within 24 hours of approval.
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-blue-600 text-white rounded-2xl p-8 flex flex-col justify-center min-w-[300px] shadow-lg print:border-2 print:border-black print:text-black print:shadow-none print:bg-transparent" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                  <span className="text-xs font-bold text-blue-200 print:text-slate-500 uppercase tracking-widest block mb-2">Total Estimated Investment</span>
-                  <span className="text-4xl font-black">{submittedProposal.totalPrice}</span>
-                  <span className="text-xs text-blue-200 print:text-slate-500 mt-2 block">* Taxes may apply as per local regulations</span>
-                </div>
-              </div>
-
-              {/* Signature Block */}
-              <div className="mt-16 pt-10 border-t-2 border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-16 print:break-inside-avoid print:mt-12">
-                <div>
-                  <div className="h-12 border-b border-slate-300 mb-3 relative">
-                    {/* Fake signature for aesthetic */}
-                    <span className="absolute bottom-1 left-2 font-['Brush_Script_MT',cursive] text-2xl text-slate-800/60 -rotate-3">Digniteq Team</span>
                   </div>
-                  <p className="text-slate-900 text-sm font-black uppercase tracking-tight">Digniteq Representative</p>
-                  <p className="text-slate-500 text-xs mt-0.5 font-medium">Authorized Signature</p>
+                  <div>
+                    <span className="flex items-center gap-2 text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                      Project Outline
+                    </span>
+                    <p className="text-slate-600 text-sm leading-relaxed bg-white p-4 rounded-xl border border-slate-200 print:border-none print:p-0 print:bg-transparent shadow-sm print:shadow-none">
+                      {displayProposal.description || "Custom business growth and optimization strategy designed for digital enhancement and lead generation targeting specific market goals."}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <div className="h-12 border-b border-slate-300 mb-3 relative"></div>
-                  <p className="text-slate-900 text-sm font-black uppercase tracking-tight">{submittedProposal.clientName}</p>
-                  <p className="text-slate-500 text-xs mt-0.5 font-medium">Client Authorization</p>
+
+                <div className="space-y-10">
+                  {/* Intro Note */}
+                  <section>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">A Note from Digniteq</h3>
+                    <p className="leading-relaxed mb-3 text-slate-600">
+                      We genuinely appreciate the trust you are placing in Digniteq, and we want this proposal to feel like the beginning of a real partnership, not just a transaction.
+                    </p>
+                    <p className="leading-relaxed mb-3 text-slate-600">
+                      We have put this document together after carefully thinking about what you need and how we can best help you get there. Every section is written to give you complete clarity on what we will do, how we will do it, and what it will cost, no hidden surprises, no vague commitments.
+                    </p>
+                    <p className="leading-relaxed text-slate-600">
+                      If something in here does not quite match what you had in mind, please tell us. We are flexible, we listen, and we genuinely want to get this right for you.
+                    </p>
+                  </section>
+
+                  {/* About Digniteq */}
+                  <section>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">About Digniteq</h3>
+                    <p className="leading-relaxed mb-3 text-slate-600">
+                      Digniteq is a premium digital agency that works with businesses, from local shops to growing companies, to help them show up better online. We are a small, focused team that takes ownership of what we deliver.
+                    </p>
+                    <p className="font-semibold mb-2 text-slate-800">We help clients with:</p>
+                    <ul className="list-disc pl-5 space-y-1 text-slate-600">
+                      <li>Custom website design and development</li>
+                      <li>E-commerce platforms and online stores</li>
+                      <li>Search engine optimisation (SEO)</li>
+                      <li>Social media marketing and content</li>
+                      <li>Branding and digital strategy</li>
+                      <li>Website maintenance and ongoing support</li>
+                    </ul>
+                  </section>
+
+                  {/* What We Understood */}
+                  <section>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">What We Understood from Your Brief</h3>
+                    <p className="leading-relaxed mb-3 text-slate-600">
+                      Based on our conversation, here is what we believe you are looking for. Please do correct us if we have missed anything or got something wrong, it is important that we are aligned from the start.
+                    </p>
+                    {displayProposal.description ? (
+                      <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 italic text-slate-600 mb-4">
+                        "{displayProposal.description}"
+                      </div>
+                    ) : null}
+                    <ul className="list-disc pl-5 space-y-2 mb-4 text-slate-600">
+                      <li>A professionally designed website that represents your business well</li>
+                      <li>A site that works smoothly on mobile phones, tablets, and desktops</li>
+                      <li>Clear pages that explain who you are, what you offer, and how to reach you</li>
+                      <li>A contact form so visitors can enquire directly</li>
+                      <li>A site that is findable on Google, built with basic SEO in mind</li>
+                      <li>Secure, fast, and reliable hosting setup</li>
+                    </ul>
+                    <p className="leading-relaxed text-slate-600">
+                      If there are specific features or pages you have in mind beyond these, we can discuss and adjust the scope accordingly before we begin.
+                    </p>
+                  </section>
                 </div>
               </div>
-
             </div>
-            
-            {/* Bottom Brand Banner */}
-            <div className="h-2 bg-slate-900 w-full print:bg-slate-900 print:block" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}></div>
+
+            {/* PAGE 2: Scope of Work */}
+            <div className="bg-white shadow-xl print:shadow-none border border-slate-200 print:border-none relative overflow-hidden print:break-after-page min-h-[1123px] flex flex-col">
+              <div className="p-10 md:p-14 print:p-12 flex-1">
+                {/* Scope of Work */}
+                <section>
+                  <h3 className="text-xl font-bold text-slate-900 mb-4">What We Will Do - Scope of Work</h3>
+                  
+                  <div className="space-y-6 mb-10">
+                    <div>
+                      <h4 className="font-bold text-slate-800 mb-2">Phase 1: Discovery and Planning</h4>
+                      <p className="leading-relaxed text-slate-600">We start by sitting down with you, either in person or on a call, to understand your goals, your audience, and what success looks like for you. We look at your competitors, map out the pages your site will need, and agree on a content structure before any design work begins.</p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-slate-800 mb-2">Phase 2: Demo Website</h4>
+                      <p className="leading-relaxed mb-2 text-slate-600">Once we have a clear picture, our developers creates demo of how your website will look. We work with your brand colours, logo, and the kind of feel you want, professional, friendly, bold, minimal, whatever fits your business. You will get to review the designs and give us feedback before we build anything.</p>
+                      <ul className="list-disc pl-5 space-y-1 text-slate-600">
+                        <li>Custom UI design for desktop and mobile views</li>
+                        <li>Demo shared for your review before development starts</li>
+                        <li>Up to 2 rounds of design revisions included</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-slate-800 mb-2">Phase 3: Development</h4>
+                      <p className="leading-relaxed mb-2 text-slate-600">This is where we build the actual website, clean code, fast loading pages, and a simple backend so you can update content yourself if you ever need to.</p>
+                      <ul className="list-disc pl-5 space-y-1 text-slate-600">
+                        <li>Responsive website development (React.js, Javascript, Tailwind CSS, Express.Js, Node.js)</li>
+                        <li>CMS integration</li>
+                        <li>Contact form with email notification</li>
+                        <li>Basic on-page SEO, meta titles, descriptions, image alt text, sitemap</li>
+                        <li>Speed optimisation</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-slate-800 mb-2">Phase 4: Testing, Launch, and Handover</h4>
+                      <p className="leading-relaxed mb-2 text-slate-600">Before anything goes live, we test the site carefully across browsers and devices. Once you are happy, we launch, and then walk you through how everything works so you feel confident managing it.</p>
+                      <ul className="list-disc pl-5 space-y-1 text-slate-600">
+                        <li>Cross-browser and cross-device quality testing</li>
+                        <li>Pre-launch review with client sign-off</li>
+                        <li>Domain and hosting configuration</li>
+                        <li>30-minute walkthrough session with your team</li>
+                        <li>90-days of post-launch support included</li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+
+            {/* PAGE 3: Details & Timelines */}
+            <div className="bg-white shadow-xl print:shadow-none border border-slate-200 print:border-none relative overflow-hidden print:break-after-page min-h-[1123px] flex flex-col">
+              <div className="p-10 md:p-14 print:p-12 flex-1">
+                <div className="space-y-12">
+                  {/* What You Will Receive */}
+                  <section>
+                    <h3 className="text-xl font-bold text-slate-900 mb-4">What You Will Receive</h3>
+                    <div className="overflow-x-auto border border-slate-200 rounded-lg">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 border-b border-slate-200">
+                            <th className="p-3 font-bold text-slate-900">#</th>
+                            <th className="p-3 font-bold text-slate-900">Deliverable</th>
+                            <th className="p-3 font-bold text-slate-900">Notes</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-slate-600">
+                          <tr><td className="p-3">1</td><td className="p-3 font-medium text-slate-800">Demo Website</td><td className="p-3">For Approval</td></tr>
+                          <tr><td className="p-3">2</td><td className="p-3 font-medium text-slate-800">Fully developed, responsive website</td><td className="p-3">Live on your domain</td></tr>
+                          <tr><td className="p-3">3</td><td className="p-3 font-medium text-slate-800">CMS access with admin training</td><td className="p-3">30-minute walkthrough included</td></tr>
+                          <tr><td className="p-3">4</td><td className="p-3 font-medium text-slate-800">On-page SEO setup on all pages</td><td className="p-3">Titles, descriptions, sitemap</td></tr>
+                          <tr><td className="p-3">5</td><td className="p-3 font-medium text-slate-800">90 days post-launch support</td><td className="p-3">Bug fixes and minor adjustments</td></tr>
+                          <tr><td className="p-3">6</td><td className="p-3 font-medium text-slate-800">Source files and documentation</td><td className="p-3">Handed over at project close</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+
+                  {/* Project Timeline */}
+                  <section>
+                    <h3 className="text-xl font-bold text-slate-900 mb-4">Project Timeline</h3>
+                    <p className="leading-relaxed mb-4 text-slate-600">
+                      We estimate the project will take 4 to 6 weeks from the day we receive your signed agreement and the advance payment. The exact timeline depends on how quickly content is provided and how smooth the feedback rounds are, we will always keep you informed.
+                    </p>
+                    <div className="overflow-x-auto border border-slate-200 rounded-lg mb-4">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 border-b border-slate-200">
+                            <th className="p-3 font-bold text-slate-900">#</th>
+                            <th className="p-3 font-bold text-slate-900">Phase</th>
+                            <th className="p-3 font-bold text-slate-900">Duration</th>
+                            <th className="p-3 font-bold text-slate-900">Approx. Week</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-slate-600">
+                          <tr><td className="p-3">1</td><td className="p-3 font-medium text-slate-800">Discovery and planning</td><td className="p-3">3–4 days</td><td className="p-3">Week 1</td></tr>
+                          <tr><td className="p-3">2</td><td className="p-3 font-medium text-slate-800">Design and mockups</td><td className="p-3">5–7 days</td><td className="p-3">Week 1–2</td></tr>
+                          <tr><td className="p-3">3</td><td className="p-3 font-medium text-slate-800">Client feedback and revisions</td><td className="p-3">2–3 days</td><td className="p-3">Week 2–3</td></tr>
+                          <tr><td className="p-3">4</td><td className="p-3 font-medium text-slate-800">Development and build</td><td className="p-3">7–10 days</td><td className="p-3">Week 3–4</td></tr>
+                          <tr><td className="p-3">5</td><td className="p-3 font-medium text-slate-800">Content upload and QA testing</td><td className="p-3">2–3 days</td><td className="p-3">Week 5</td></tr>
+                          <tr><td className="p-3">6</td><td className="p-3 font-medium text-slate-800">Launch and client handover</td><td className="p-3">1–2 days</td><td className="p-3">Week 5–6</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <p className="text-sm italic text-slate-500">
+                      Please note that timelines are subject to timely feedback from client side and readiness of content such as text, images, and logos.
+                    </p>
+                  </section>
+
+                  {/* Investment */}
+                  <section>
+                    <h3 className="text-xl font-bold text-slate-900 mb-4">Investment</h3>
+                    <p className="leading-relaxed mb-4 text-slate-600">
+                      We have worked hard to keep this pricing fair and transparent. Below is a full breakdown of what is included and what each component costs based on your selected services.
+                    </p>
+                    <div className="overflow-x-auto border border-slate-200 rounded-lg">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 border-b border-slate-200">
+                            <th className="p-3 font-bold text-slate-900">#</th>
+                            <th className="p-3 font-bold text-slate-900">Component</th>
+                            <th className="p-3 font-bold text-slate-900 text-right">Amount (INR)</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {displayProposal.selectedServices.map((service, idx) => (
+                            <tr key={idx}>
+                              <td className="p-3 text-slate-600">{idx + 1}</td>
+                              <td className="p-3">
+                                <div className="font-bold text-slate-800">{service.serviceType}</div>
+                                <div className="text-sm text-slate-500">{service.planName}</div>
+                              </td>
+                              <td className="p-3 font-bold text-right text-slate-800">{service.price}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot>
+                          <tr className="bg-slate-50 border-t-2 border-slate-300">
+                            <td colSpan="2" className="p-4 text-right font-black uppercase tracking-widest text-slate-600 text-xs">Total Investment</td>
+                            <td className="p-4 font-black text-slate-900 text-xl text-right">{displayProposal.totalPrice}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </section>
+                </div>
+              </div>
+            </div>
+
+            {/* PAGE 4: Terms & Signatures */}
+            <div className="bg-white shadow-xl print:shadow-none border border-slate-200 print:border-none relative overflow-hidden min-h-[1123px] flex flex-col print:break-after-avoid">
+              <div className="p-10 md:p-14 print:p-12 flex-1">
+                <div className="space-y-12">
+                  {/* Payment Schedule */}
+                  <section>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">Payment Schedule</h3>
+                    <p className="leading-relaxed mb-3 text-slate-600">We have kept the payment structure simple and fair for both sides:</p>
+                    <ul className="list-disc pl-5 space-y-2 mb-4 text-slate-600">
+                      <li>50% advance on signing of the agreement, this confirms the project and we begin work within 2 business days</li>
+                      <li>30% on your approval of the final web design</li>
+                      <li>20% on website launch and project handover</li>
+                    </ul>
+                    <p className="text-sm italic text-slate-500">
+                      Domain registration and annual hosting charges are not included in the above and will be billed at actual cost.
+                    </p>
+                  </section>
+
+                  {/* Terms and Conditions */}
+                  <section>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">Terms and Conditions</h3>
+                    <p className="leading-relaxed mb-3 text-slate-600">We believe in keeping things straightforward. Here is what both sides are committing to:</p>
+                    <ul className="list-disc pl-5 space-y-2 text-slate-600">
+                      <li>You will provide all required content, text, images, and logos, within 5 business days of project start. Delays in content can push the timeline.</li>
+                      <li>Two rounds of design revisions are included. If more are needed, additional revisions are billed at Rs. 500 per round.</li>
+                      <li>Any new features or pages added after work has started will be scoped and quoted separately.</li>
+                      <li>Digniteq may include the completed website in our portfolio unless you request otherwise in writing.</li>
+                      <li>Full ownership of the website transfers to you upon receipt of the final payment.</li>
+                      <li>This proposal is valid for 30 days from the date of issue.</li>
+                    </ul>
+                  </section>
+
+                  {/* How We Move Forward */}
+                  <section>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">How We Move Forward</h3>
+                    <p className="leading-relaxed mb-3 text-slate-600">When you are ready to proceed, here is all you need to do:</p>
+                    <ul className="list-disc pl-5 space-y-2 mb-4 text-slate-600">
+                      <li>Let us know if you have any questions about this proposal, we are happy to discuss</li>
+                      <li>Sign the agreement and return it to us</li>
+                      <li>Complete the 50% advance payment to kick things off</li>
+                      <li>We schedule a kickoff call and begin within 2 business days</li>
+                    </ul>
+                    <p className="leading-relaxed text-slate-600">
+                      We are genuinely looking forward to working with you on this. If you would like to talk through anything before signing, you can reach us at <strong className="text-slate-900">contact@digniteq.in</strong>.
+                    </p>
+                  </section>
+
+                  {/* Agreement and Acceptance */}
+                  <section className="mt-8 border-t-2 border-slate-200 pt-8 print:break-inside-avoid">
+                    <h3 className="text-2xl font-black text-slate-900 mb-4">Agreement and Acceptance</h3>
+                    <p className="leading-relaxed mb-10 text-slate-600">
+                      By signing below, both parties agree to the scope, timeline, and pricing as outlined in this proposal.
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-16">
+                      <div>
+                        <div className="h-16 border-b border-slate-300 mb-3 relative"></div>
+                        <p className="text-slate-900 text-sm font-black uppercase tracking-tight">Authorised Signatory — Digniteq</p>
+                        <p className="text-slate-500 text-xs mt-1">Date: {new Date(submittedProposal.createdAt).toLocaleDateString()}</p>
+                      </div>
+                      <div>
+                        <div className="h-16 border-b border-slate-300 mb-3 relative"></div>
+                        <p className="text-slate-900 text-sm font-black uppercase tracking-tight">Client Signature</p>
+                        <p className="text-slate-500 text-xs mt-1">Name & Designation: ________________</p>
+                        <p className="text-slate-500 text-xs mt-1">Date: ________________</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-16 text-center">
+                      <p className="font-bold text-slate-800 text-lg">Thank you for your time and for considering Digniteq.</p>
+                      <p className="text-slate-500">We look forward to building something you are proud of.</p>
+                    </div>
+                  </section>
+                </div>
+              </div>
+              
+              {/* Bottom Brand Banner */}
+              <div className="h-4 bg-slate-900 w-full print:bg-slate-900 print:block mt-auto shrink-0" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}></div>
+            </div>
+
           </div>
         </div>
       </div>
+      </>
     );
   }
 
@@ -372,7 +634,7 @@ export default function ProposalPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row gap-12">
+        <form onSubmit={handlePreview} className="flex flex-col lg:flex-row gap-12">
           
           {/* Left Side: Client Info Form */}
           <div className="w-full lg:w-[45%] flex flex-col gap-6">
