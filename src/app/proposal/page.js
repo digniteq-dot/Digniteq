@@ -22,6 +22,7 @@ export default function ProposalPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [previewData, setPreviewData] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [submittedProposal, setSubmittedProposal] = useState(null);
   const [formError, setFormError] = useState("");
 
@@ -194,6 +195,39 @@ export default function ProposalPage() {
           }
         }
       `}</style>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm print:hidden">
+          <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full border border-slate-100 transition-all transform scale-100">
+            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <h3 className="text-xl font-black text-slate-900 text-center mb-2 tracking-tight">Finalize Proposal?</h3>
+            <p className="text-slate-500 text-center text-sm mb-8 leading-relaxed font-medium">
+              This will submit the proposal to the admin dashboard and generate a permanent reference number.
+            </p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 bg-white border-2 border-slate-100 hover:bg-slate-50 text-slate-700 font-bold py-3.5 px-4 rounded-xl transition-colors text-sm"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  handleFinalSubmit();
+                }}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/30 transition-all text-sm"
+              >
+                Confirm & Send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="min-h-screen bg-[#f8fafc] pt-32 pb-12 px-4 md:px-12 font-inter text-slate-800 print:bg-white print:p-0 print:py-0">
         <div className="max-w-[794px] mx-auto">
           
@@ -217,7 +251,7 @@ export default function ProposalPage() {
                     Edit Details
                   </button>
                   <button 
-                    onClick={handleFinalSubmit}
+                    onClick={() => setShowConfirmModal(true)}
                     disabled={isSubmitting}
                     className="bg-green-600 hover:bg-green-700 text-white font-bold text-sm px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all"
                   >
