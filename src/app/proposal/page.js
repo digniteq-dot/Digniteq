@@ -300,14 +300,12 @@ export default function ProposalPage() {
                 {/* Letterhead Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start border-b-2 border-slate-100 pb-10 mb-10 gap-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg print:shadow-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                      D
-                    </div>
-                    <div>
-                      <h2 className="text-3xl font-black tracking-tight text-slate-900 uppercase">Digniteq</h2>
-                      <p className="text-blue-600 font-bold text-sm uppercase tracking-widest mt-0.5">Premium Digital Agency</p>
-                      <p className="text-slate-500 text-xs mt-1 font-medium">digniteq.in &nbsp;&bull;&nbsp; contact@digniteq.in</p>
-                    </div>
+                    <img 
+                      src="/assets/logo.png" 
+                      alt="Digniteq Logo" 
+                      className="h-14 w-auto object-contain"
+                      style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
+                    />
                   </div>
                   <div className="text-left md:text-right bg-slate-50 p-4 rounded-xl border border-slate-100 print:bg-transparent print:border-none print:p-0">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Document Type</span>
@@ -386,35 +384,50 @@ export default function ProposalPage() {
                     </ul>
                   </section>
 
-                  {/* What We Understood */}
-                  <section>
-                    <h3 className="text-xl font-bold text-slate-900 mb-3">What We Understood from Your Brief</h3>
-                    <p className="leading-relaxed mb-3 text-slate-600">
-                      Based on our conversation, here is what we believe you are looking for. Please do correct us if we have missed anything or got something wrong, it is important that we are aligned from the start.
-                    </p>
-                    {displayProposal.description ? (
-                      <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 italic text-slate-600 mb-4">
-                        "{displayProposal.description}"
-                      </div>
-                    ) : null}
-                    <ul className="list-disc pl-5 space-y-2 mb-4 text-slate-600">
-                      <li>A professionally designed website that represents your business well</li>
-                      <li>A site that works smoothly on mobile phones, tablets, and desktops</li>
-                      <li>Clear pages that explain who you are, what you offer, and how to reach you</li>
-                      <li>A contact form so visitors can enquire directly</li>
-                      <li>A site that is findable on Google, built with basic SEO in mind</li>
-                      <li>Secure, fast, and reliable hosting setup</li>
-                    </ul>
-                    <p className="leading-relaxed text-slate-600">
-                      If there are specific features or pages you have in mind beyond these, we can discuss and adjust the scope accordingly before we begin.
-                    </p>
-                  </section>
                 </div>
               </div>
             </div>
 
-            {/* PAGE 2: Scope of Work */}
-            <div className="bg-white shadow-xl print:shadow-none border border-slate-200 print:border-none relative overflow-hidden print:break-after-page min-h-[1123px] flex flex-col">
+            {/* PAGE 2: What We Understood */}
+            <div className="bg-white shadow-xl print:shadow-none border border-slate-200 print:border-none relative overflow-hidden print:break-after-page min-h-[1123px] flex flex-col mt-10 print:mt-0">
+              <div className="h-4 bg-blue-600 w-full print:bg-blue-600 print:block shrink-0" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}></div>
+              <div className="px-10 md:px-14 py-4 border-b border-slate-100 flex justify-between items-center shrink-0">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Digniteq — Service Proposal</span>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Page 2</span>
+              </div>
+              <div className="p-10 md:p-14 print:p-12 flex-1">
+                <section>
+                  <h3 className="text-xl font-bold text-slate-900 mb-3">What We Understood from Your Brief</h3>
+                  <p className="leading-relaxed mb-3 text-slate-600">
+                    Based on our conversation, here is what we believe you are looking for. Please do correct us if we have missed anything or got something wrong, it is important that we are aligned from the start.
+                  </p>
+                  {displayProposal.description ? (
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 italic text-slate-600 mb-4">
+                      "{displayProposal.description}"
+                    </div>
+                  ) : null}
+                  <ul className="list-disc pl-5 space-y-2 mb-4 text-slate-600">
+                    <li>A professionally designed website that represents your business well</li>
+                    <li>A site that works smoothly on mobile phones, tablets, and desktops</li>
+                    <li>Clear pages that explain who you are, what you offer, and how to reach you</li>
+                    <li>A contact form so visitors can enquire directly</li>
+                    <li>A site that is findable on Google, built with basic SEO in mind</li>
+                    <li>Secure, fast, and reliable hosting setup</li>
+                  </ul>
+                  <p className="leading-relaxed text-slate-600">
+                    If there are specific features or pages you have in mind beyond these, we can discuss and adjust the scope accordingly before we begin.
+                  </p>
+                </section>
+              </div>
+            </div>
+
+            {/* PAGE 3: Scope of Work */}
+            <div className="bg-white shadow-xl print:shadow-none border border-slate-200 print:border-none relative overflow-hidden print:break-after-page min-h-[1123px] flex flex-col mt-10 print:mt-0">
+              <div className="h-4 bg-blue-600 w-full print:bg-blue-600 print:block shrink-0" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}></div>
+              <div className="px-10 md:px-14 py-4 border-b border-slate-100 flex justify-between items-center shrink-0">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Digniteq — Service Proposal</span>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Page 3</span>
+              </div>
               <div className="p-10 md:p-14 print:p-12 flex-1">
                 {/* Scope of Work */}
                 <section>
@@ -464,8 +477,13 @@ export default function ProposalPage() {
               </div>
             </div>
 
-            {/* PAGE 3: Details & Timelines */}
-            <div className="bg-white shadow-xl print:shadow-none border border-slate-200 print:border-none relative overflow-hidden print:break-after-page min-h-[1123px] flex flex-col">
+            {/* PAGE 4: Details & Timelines */}
+            <div className="bg-white shadow-xl print:shadow-none border border-slate-200 print:border-none relative overflow-hidden print:break-after-page min-h-[1123px] flex flex-col mt-10 print:mt-0">
+              <div className="h-4 bg-blue-600 w-full print:bg-blue-600 print:block shrink-0" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}></div>
+              <div className="px-10 md:px-14 py-4 border-b border-slate-100 flex justify-between items-center shrink-0">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Digniteq — Service Proposal</span>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Page 4</span>
+              </div>
               <div className="p-10 md:p-14 print:p-12 flex-1">
                 <div className="space-y-12">
                   {/* What You Will Receive */}
@@ -563,8 +581,13 @@ export default function ProposalPage() {
               </div>
             </div>
 
-            {/* PAGE 4: Terms & Signatures */}
-            <div className="bg-white shadow-xl print:shadow-none border border-slate-200 print:border-none relative overflow-hidden min-h-[1123px] flex flex-col print:break-after-avoid">
+            {/* PAGE 5: Terms & Signatures */}
+            <div className="bg-white shadow-xl print:shadow-none border border-slate-200 print:border-none relative overflow-hidden min-h-[1123px] flex flex-col print:break-after-avoid mt-10 print:mt-0">
+              <div className="h-4 bg-blue-600 w-full print:bg-blue-600 print:block shrink-0" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}></div>
+              <div className="px-10 md:px-14 py-4 border-b border-slate-100 flex justify-between items-center shrink-0">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Digniteq — Service Proposal</span>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Page 5</span>
+              </div>
               <div className="p-10 md:p-14 print:p-12 flex-1">
                 <div className="space-y-12">
                   {/* Payment Schedule */}
