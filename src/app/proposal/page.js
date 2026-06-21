@@ -194,7 +194,7 @@ export default function ProposalPage() {
           }
         }
       `}</style>
-      <div className="min-h-screen bg-[#f8fafc] py-12 px-4 md:px-12 font-inter text-slate-800 print:bg-white print:p-0 print:py-0">
+      <div className="min-h-screen bg-[#f8fafc] pt-32 pb-12 px-4 md:px-12 font-inter text-slate-800 print:bg-white print:p-0 print:py-0">
         <div className="max-w-[794px] mx-auto">
           
           {/* Header Controls (Hidden on Print) */}
@@ -282,7 +282,7 @@ export default function ProposalPage() {
                       <span className="text-slate-500">Ref No:</span>
                       <span className="text-slate-900 font-bold">#PRO-{displayProposal._id?.slice(-6).toUpperCase()}</span>
                       <span className="text-slate-500">Date:</span>
-                      <span className="text-slate-900 font-bold">{new Date(submittedProposal.createdAt).toLocaleDateString()}</span>
+                      <span className="text-slate-900 font-bold">{new Date(displayProposal.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
@@ -587,7 +587,7 @@ export default function ProposalPage() {
                       <div>
                         <div className="h-16 border-b border-slate-300 mb-3 relative"></div>
                         <p className="text-slate-900 text-sm font-black uppercase tracking-tight">Authorised Signatory — Digniteq</p>
-                        <p className="text-slate-500 text-xs mt-1">Date: {new Date(submittedProposal.createdAt).toLocaleDateString()}</p>
+                        <p className="text-slate-500 text-xs mt-1">Date: {new Date(displayProposal.createdAt).toLocaleDateString()}</p>
                       </div>
                       <div>
                         <div className="h-16 border-b border-slate-300 mb-3 relative"></div>
