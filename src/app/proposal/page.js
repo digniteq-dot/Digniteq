@@ -169,27 +169,7 @@ export default function ProposalPage() {
   };
 
   const handlePrint = () => {
-    const element = document.querySelector(".proposal-pages-wrapper");
-    if (!element) return;
-    const originalTransform = element.style.transform;
-    const originalWidth = element.style.width;
-    element.style.transform = "none";
-    element.style.width = "100%";
-    import("html2pdf.js").then((mod) => {
-      const html2pdf = mod.default;
-      const opt = {
-        margin: 0,
-        filename: `Proposal-${displayProposal.proposalId || "DGTQ"}.pdf`,
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-      };
-      html2pdf().set(opt).from(element).save().then(() => {
-        element.style.transform = originalTransform;
-        element.style.width = originalWidth;
-      });
-    });
+    window.print();
   };
 
   const displayProposal = submittedProposal || (previewMode ? previewData : null);
@@ -255,7 +235,7 @@ export default function ProposalPage() {
                 </>
               ) : (
                 <>
-                  <button onClick={handlePrint} className="bg-blue-600 text-white font-bold px-6 py-2.5 rounded-lg">Download PDF</button>
+                  <button onClick={handlePrint} className="bg-blue-600 text-white font-bold px-6 py-2.5 rounded-lg">Print / Save PDF</button>
                   <button onClick={() => window.location.reload()} className="bg-white border text-slate-700 font-bold px-6 py-2.5 rounded-lg">Create New</button>
                 </>
               )}
