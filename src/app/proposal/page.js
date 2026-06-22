@@ -180,22 +180,25 @@ export default function ProposalPage() {
       <>
       <style>{`
         @media print {
-          @page { size: A4; margin: 0; }
-          body { background-color: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-          .proposal-pages-wrapper { transform: none !important; width: 100% !important; }
-          .proposal-scale-container { overflow: visible !important; height: auto !important; }
-          .page-footer { position: fixed; bottom: 0; width: 100%; }
+          @page { size: A4; margin: 12mm 15mm; }
+          body { background-color: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0 !important; padding: 0 !important; }
+          .proposal-pages-wrapper { transform: none !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+          .proposal-scale-container { overflow: visible !important; height: auto !important; width: 100% !important; }
+          .proposal-page { page-break-after: always; page-break-inside: avoid; height: auto !important; min-height: 0 !important; }
+          .proposal-page:last-child { page-break-after: avoid; }
+        }
+        @media screen {
+          .proposal-pages-wrapper {
+            transform: scale(0.62);
+            transform-origin: top center;
+            width: 794px;
+            margin: 0 auto;
+          }
+          .proposal-scale-container {
+            overflow: hidden;
+          }
         }
         .cursive-signature { font-family: 'Brush Script MT', 'Dancing Script', cursive; font-size: 28px; color: #1a1a1a; }
-        .proposal-pages-wrapper {
-          transform: scale(0.62);
-          transform-origin: top center;
-          width: 794px;
-          margin: 0 auto;
-        }
-        .proposal-scale-container {
-          overflow: hidden;
-        }
         .proposal-page { font-family: 'Inter', system-ui, sans-serif; }
         .gold-accent { color: #c9a84c; }
         .gold-border { border-color: #c9a84c; }
