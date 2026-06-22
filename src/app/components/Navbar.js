@@ -34,7 +34,7 @@ export default function Navbar() {
     { name: "SMM Strategy", href: "/services/smm-strategy" },
     { name: "SEO Strategy", href: "/services/seo-strategy" },
     { name: "Portfolio", href: "/portfolio" },
-    { name: "Get Proposal", href: "/proposal" },
+    { name: "Service Request", href: "/proposal" },
   ];
 
 
