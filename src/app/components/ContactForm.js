@@ -8,6 +8,7 @@ export default function ContactForm() {
   const form = useRef();
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
+  const [showCustomLead, setShowCustomLead] = useState(false);
 
   const sendEmail = async (e) => {
     e.preventDefault();
@@ -16,11 +17,14 @@ export default function ContactForm() {
 
     // Gather form data
     const formData = new FormData(form.current);
+    const leadVal = formData.get("user_lead_source");
+    const customSpecifyVal = formData.get("user_lead_source_custom");
     const payload = {
       name: formData.get("user_name"),
       email: formData.get("user_email"),
       phone: formData.get("user_phone"),
       message: formData.get("message"),
+      leadSource: leadVal === "Other" ? `Other: ${customSpecifyVal}` : leadVal,
     };
 
     let backendSuccess = false;
@@ -126,6 +130,39 @@ export default function ContactForm() {
                 <div className="absolute right-0 bottom-3 w-0.5 h-0.5 bg-white/40 rounded-full"></div>
               </div>
             </div>
+
+            <div className="relative group">
+              <label className="font-sans-premium text-[8px] font-black text-white/40 uppercase tracking-widest absolute -top-5 left-0 transition-all group-focus-within:text-white">How did you hear about us?</label>
+              <select 
+                name="user_lead_source"
+                onChange={(e) => setShowCustomLead(e.target.value === "Other")}
+                className="w-full bg-transparent border-b border-white/20 py-3 font-inter text-xs md:text-sm text-white/80 focus:outline-none focus:border-white transition-all appearance-none cursor-pointer"
+              >
+                <option value="" className="bg-[#030610] text-white/40">Select source...</option>
+                <option value="Google Search" className="bg-[#030610] text-white">Google Search</option>
+                <option value="Instagram" className="bg-[#030610] text-white">Instagram</option>
+                <option value="LinkedIn" className="bg-[#030610] text-white">LinkedIn</option>
+                <option value="Facebook" className="bg-[#030610] text-white">Facebook</option>
+                <option value="Friend Referral" className="bg-[#030610] text-white">Friend Referral</option>
+                <option value="YouTube" className="bg-[#030610] text-white">YouTube</option>
+                <option value="Other" className="bg-[#030610] text-white">Other</option>
+              </select>
+              <span className="absolute right-2 bottom-4 text-white/30 pointer-events-none text-xs">▼</span>
+            </div>
+
+            {showCustomLead && (
+              <div className="relative group animate-in fade-in duration-300">
+                <label className="font-sans-premium text-[8px] font-black text-white/40 uppercase tracking-widest absolute -top-5 left-0 transition-all group-focus-within:text-white">Please Specify Source</label>
+                <input 
+                  type="text" 
+                  name="user_lead_source_custom" 
+                  required
+                  placeholder="e.g. Google Ads, Blog, Friend name"
+                  className="w-full bg-transparent border-b border-white/20 py-3 font-inter text-xs md:text-sm text-white focus:outline-none focus:border-white transition-all"
+                />
+                <div className="absolute right-0 bottom-3 w-0.5 h-0.5 bg-white/40 rounded-full"></div>
+              </div>
+            )}
 
             <div className="relative group">
               <label className="font-sans-premium text-[8px] font-black text-white/40 uppercase tracking-widest absolute -top-5 left-0 transition-all group-focus-within:text-white">Message</label>
